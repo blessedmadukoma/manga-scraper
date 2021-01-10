@@ -1,7 +1,7 @@
 # manga-scraper
 A manga scraper written in golang
 To get started:
-1. Download golang from golang.org
+1. Download golang from golang.org, make sure everything is properly installed especially GOPATH and GOROOT
 2. Install the following packages/frameworks:
   - github.com/PuerkitoBio/goquery
   - github.com/dustin/go-humanize
