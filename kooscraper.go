@@ -49,7 +49,7 @@ func main() {
 
 	reader := bufio.NewReader(os.Stdin)
 
-	fmt.Println("Enter manga name: e.g. solo leveling")
+	fmt.Println("Enter manga name (use lower case letters): e.g. solo leveling")
 	mangaName, _ := reader.ReadString('\n')
 	mangaName = strings.Replace(mangaName, " ", "-", -1)
 	dirName := strings.ToUpper(mangaName)
@@ -66,7 +66,7 @@ func main() {
 	mangaName = strings.Replace(mangaName, ".", "-", -1)
 	mangaName = strings.Replace(mangaName, "\n", "", -1)
 
-	fmt.Println("Enter the number of chapters you want to download e.g. 3 (if it's only one chapter you want or the first number of the chapter starts with 0 (i.e. 02), input 0):")
+	fmt.Println("Enter the number of chapters you want to download e.g. 3\n *Note*: If it's only one chapter you want or the first number of the chapter starts with 0 (i.e. 02 or 01), input 0, this would prevent downloading another chapter:")
 	fmt.Scanln(&lastChapter)
 	fmt.Println("Enter the first chapter number for download e.g. 134 or 01 (if first episode starts with 01) or 1 (if first episode starts with 1 not 01)\n[To be sure, check koomanga.com, search for your manga, check the number of the first episode.]:")
 	variable, _ := reader.ReadString('\n')
