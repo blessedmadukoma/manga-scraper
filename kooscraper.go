@@ -54,6 +54,11 @@ func main() {
 
 	os.Mkdir(dir, 0755)
 
+	err = os.Chdir(dir)
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	mangaName = strings.ToLower(mangaName)
 	mangaName = strings.Replace(mangaName, " ", "-", -1)
 	mangaName = strings.Replace(mangaName, "'", "", -1)
@@ -71,8 +76,12 @@ func main() {
 
 	firstChapter, _ = strconv.Atoi(variable)
 
-	j = 0
 	for i := firstChapter; i <= (firstChapter + lastChapter); i++ {
+		j = 1
+		err = os.Chdir(dir)
+		if err != nil {
+			fmt.Println(err)
+		}
 		if strings.HasPrefix(variable, "0") {
 			url = "https://ww6.koomanga.com/" + mangaName + "-chap-" + variable + "/"
 		} else {
@@ -89,10 +98,10 @@ func main() {
 			return
 		}
 
-		err := os.Chdir(dir)
-		if err != nil {
-			fmt.Println(err)
-		}
+		// err := os.Chdir(dir)
+		// if err != nil {
+		// 	fmt.Println(err)
+		// }
 
 		// Make a directory with a chapter subdirectory, 0755 is the permision
 		chapter := "chapter_" + strconv.Itoa(i)
@@ -111,8 +120,8 @@ func main() {
 			if exists && strings.Contains(imgSrc, "heaven") {
 				mangaImgSrc = append(mangaImgSrc, imgSrc)
 
-				fmt.Println("j:", j+1, "\nURL:", imgSrc)
-				fileName := "page_" + strconv.Itoa(j+1) + ".jpg"
+				fmt.Println("j:", j, "\nURL:", imgSrc)
+				fileName := "page_" + strconv.Itoa(j) + ".jpg"
 
 				err := os.Chdir(chapter)
 				if err != nil {
