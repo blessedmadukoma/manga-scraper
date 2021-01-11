@@ -15,7 +15,7 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
-// Progress bar and sh*t
+// WriteCounter counts the total kb downloaded
 type WriteCounter struct {
 	Total uint64
 }
@@ -26,6 +26,8 @@ func (wc *WriteCounter) Write(p []byte) (int, error) {
 	wc.PrintProgress()
 	return n, nil
 }
+
+// PrintProgress prints the progress
 func (wc WriteCounter) PrintProgress() {
 	// Clear the line by using a character return to go back to the start and remove the remaining characters by filling it with spaces
 	fmt.Printf("\r%s", strings.Repeat(" ", 35))
@@ -49,15 +51,12 @@ func main() {
 
 	fmt.Println("Enter manga name: e.g. solo leveling")
 	mangaName, _ := reader.ReadString('\n')
+	mangaName = strings.Replace(mangaName, " ", "-", -1)
 	dirName := strings.ToUpper(mangaName)
+
 	dir := dirName
 
 	os.Mkdir(dir, 0755)
-
-	err = os.Chdir(dir)
-	if err != nil {
-		fmt.Println(err)
-	}
 
 	mangaName = strings.ToLower(mangaName)
 	mangaName = strings.Replace(mangaName, " ", "-", -1)
@@ -72,16 +71,12 @@ func main() {
 	fmt.Println("Enter the first chapter number for download e.g. 134 or 01 (if first episode starts with 01) or 1 (if first episode starts with 1 not 01)\n[To be sure, check koomanga.com, search for your manga, check the number of the first episode.]:")
 	variable, _ := reader.ReadString('\n')
 	variable = strings.Replace(variable, "\n", "", -1)
-	fmt.Println("Variable:", variable)
+	// fmt.Println("Variable:", variable)
 
 	firstChapter, _ = strconv.Atoi(variable)
 
 	for i := firstChapter; i <= (firstChapter + lastChapter); i++ {
 		j = 1
-		err = os.Chdir(dir)
-		if err != nil {
-			fmt.Println(err)
-		}
 		if strings.HasPrefix(variable, "0") {
 			url = "https://ww6.koomanga.com/" + mangaName + "-chap-" + variable + "/"
 		} else {
@@ -89,7 +84,7 @@ func main() {
 		}
 
 		// Getting the URL
-		fmt.Println("URL:", url)
+		// fmt.Println("URL:", url)
 		fmt.Println("Waiting for 6 seconds!")
 		time.Sleep(6 * time.Second) // waiting for page to load depending on the internet speed
 		response, err = http.Get(url)
@@ -98,35 +93,55 @@ func main() {
 			return
 		}
 
-		// err := os.Chdir(dir)
-		// if err != nil {
-		// 	fmt.Println(err)
-		// }
+		err = os.Chdir(dir)
+		if err != nil {
+			fmt.Println(err)
+		}
+		pwd0, _ := os.Getwd()
+		pwd0 = strings.Replace(pwd0, "\n", "", -1)
+		pwd0 = strings.Replace(pwd0, " ", "", -1)
+		// fmt.Println("First directory change pwd:", pwd0)
 
 		// Make a directory with a chapter subdirectory, 0755 is the permision
 		chapter := "chapter_" + strconv.Itoa(i)
 		os.Mkdir(chapter, 0755)
 
+		chapter = strings.Replace(chapter, "\n", "", -1)
+		chapter = strings.Replace(chapter, " ", "", -1)
+		dirChapter := chapter
+		pwd, _ := os.Getwd()
+
+		dirChapter = strings.Replace(dirChapter, "\n", "", -1)
+		dirChapter = strings.Replace(dirChapter, " ", "", -1)
+		pwd = strings.Replace(pwd, "\n", "", -1)
+		pwd = strings.Replace(pwd, " ", "", -1)
+
+		err := os.Chdir(dirChapter)
+		pwd1, _ := os.Getwd()
+		pwd1 = strings.Replace(pwd1, "\n", "", -1)
+		pwd1 = strings.Replace(pwd1, " ", "", -1)
+		if err != nil {
+			fmt.Println("\nError:", err)
+		}
+
 		document, err := goquery.NewDocumentFromReader(response.Body)
 		if err != nil {
 			log.Fatal("Error loading HTTP response body. ", err)
 		}
+
 		// select all the image tags
 		document.Find("img").Each(func(index int, element *goquery.Selection) {
+
 			// select all image tags with src attribute
 			imgSrc, exists := element.Attr("src")
 
 			// check if the link exists and has a "heaven" in it
 			if exists && strings.Contains(imgSrc, "heaven") {
+
 				mangaImgSrc = append(mangaImgSrc, imgSrc)
 
-				fmt.Println("j:", j, "\nURL:", imgSrc)
+				// fmt.Println("j:", j, "\nURL:", imgSrc)
 				fileName := "page_" + strconv.Itoa(j) + ".jpg"
-
-				err := os.Chdir(chapter)
-				if err != nil {
-					fmt.Println("\nError:", err)
-				}
 
 				fmt.Println("Waiting for 3 seconds!")
 				time.Sleep(3 * time.Second)
@@ -140,6 +155,17 @@ func main() {
 			}
 		})
 		fmt.Println("manga with", len(mangaImgSrc), "pages completely downloaded!!")
+
+		fmt.Print("\n")
+
+		err = os.Chdir("../../" + dir)
+		if err != nil {
+			fmt.Println(err)
+		}
+		pwd0, _ = os.Getwd()
+		pwd0 = strings.Replace(pwd0, "\n", "", -1)
+		pwd0 = strings.Replace(pwd0, " ", "", -1)
+
 	}
 }
 
