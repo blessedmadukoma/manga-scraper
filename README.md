@@ -18,3 +18,6 @@ Changes and edits are welcome. Thank you.
 Important Information: 
 1. If you want to start download from the first chapter and the first chapter is 01, you would have to download it one by one but if it is 1, you can download multiple chapters.
 2. This code only runs on Linux and MacOS devices, support for windows would be made available soon.
+
+
+Credit to koomanga for their awesome website. Check them out if you want to view manga!!
