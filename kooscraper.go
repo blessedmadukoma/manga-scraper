@@ -85,6 +85,7 @@ func main() {
 		// Getting the URL
 		// fmt.Println("URL:", url)
 		fmt.Println("Waiting for 6 seconds!")
+		fmt.Println()
 		time.Sleep(6 * time.Second) // waiting for page to load depending on the internet speed
 		response, err = http.Get(url)
 		if err != nil {
@@ -100,6 +101,9 @@ func main() {
 		pwd0 = strings.ReplaceAll(pwd0, "\n", "")
 		pwd0 = strings.ReplaceAll(pwd0, " ", "")
 		// fmt.Println("First directory change pwd:", pwd0)
+
+		fmt.Println("Chapter", strconv.Itoa(i), "starting download!")
+		fmt.Println()
 
 		// Make a directory with a chapter subdirectory, 0755 is the permision
 		chapter := "chapter_" + strconv.Itoa(i)
@@ -141,7 +145,6 @@ func main() {
 
 				// fmt.Println("j:", j, "\nURL:", imgSrc)
 				fileName := "page_" + strconv.Itoa(j) + ".jpg"
-
 				fmt.Println("Waiting for 3 seconds!")
 				time.Sleep(3 * time.Second)
 				fmt.Println(fileName, "download started!")
@@ -153,9 +156,9 @@ func main() {
 				j++
 			}
 		})
-		fmt.Println("manga with", len(mangaImgSrc), "pages completely downloaded!!")
+		fmt.Println("Chapter", strconv.Itoa(i), "with", len(mangaImgSrc), "pages completely downloaded!!")
 
-		fmt.Print("\n")
+		fmt.Print("\n\n")
 
 		err = os.Chdir("../../" + dir)
 		if err != nil {
@@ -166,6 +169,7 @@ func main() {
 		pwd0 = strings.ReplaceAll(pwd0, " ", "")
 
 	}
+	fmt.Println("All Downloads Completed!!")
 }
 
 // function returns an error or nil if no error
