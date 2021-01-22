@@ -63,6 +63,13 @@ func main() {
 	mangaName = strings.ReplaceAll(mangaName, "~", "-")
 	mangaName = strings.ReplaceAll(mangaName, " ", "-")
 	mangaName = strings.ReplaceAll(mangaName, ".", "-")
+	mangaName = strings.ReplaceAll(mangaName, ", ", "-")
+	mangaName = strings.ReplaceAll(mangaName, ",", "-")
+	mangaName = strings.ReplaceAll(mangaName, ". ", "-")
+	mangaName = strings.ReplaceAll(mangaName, ":", "-")
+	mangaName = strings.ReplaceAll(mangaName, ": ", "-")
+	mangaName = strings.ReplaceAll(mangaName, " - ", "-")
+	mangaName = strings.ReplaceAll(mangaName, "--", "-")
 	mangaName = strings.ReplaceAll(mangaName, "\n", "")
 
 	fmt.Println("Enter the number of chapters you want to download e.g. 3 (if it's only one chapter you want or the first number of the chapter starts with 0 (i.e. 02), input 0):")
@@ -139,7 +146,7 @@ func main() {
 			imgSrc, exists := element.Attr("src")
 
 			// check if the link exists and has a "heaven" in it
-			if exists && strings.Contains(imgSrc, "heaven") {
+			if exists && (strings.Contains(imgSrc, "heaven") || strings.Contains(imgSrc, "fun") || strings.Contains(imgSrc, "manga") || strings.Contains(imgSrc, "image")) {
 
 				mangaImgSrc = append(mangaImgSrc, imgSrc)
 
