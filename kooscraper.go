@@ -94,9 +94,9 @@ func main() {
 		}
 
 		err = os.Chdir(dir)
-		if err != nil {
-			fmt.Println(err)
-		}
+		// if err != nil {
+		// 	fmt.Println(err)
+		// }
 		pwd0, _ := os.Getwd()
 		pwd0 = strings.ReplaceAll(pwd0, "\n", "")
 		pwd0 = strings.ReplaceAll(pwd0, " ", "")
