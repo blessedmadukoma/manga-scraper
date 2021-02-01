@@ -155,6 +155,7 @@ func main() {
 				fmt.Println("Waiting for 3 seconds!")
 				time.Sleep(3 * time.Second)
 				fmt.Println(fileName, "download started!")
+				fmt.Println("Download URL:", imgSrc)
 				err = downloadFile(imgSrc, fileName)
 				if err != nil {
 					log.Fatal(err)
