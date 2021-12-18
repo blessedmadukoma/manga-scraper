@@ -55,9 +55,10 @@ func main() {
 			url = link + "/" + mangaName + "-chap-" + strconv.Itoa(i) + "/"
 		}
 
+		fmt.Println("URL:", url)
 		// Getting the URL
 		fmt.Println("\nLoading URL!!!")
-		time.Sleep(3 * time.Second) // waiting for page to load depending on the internet speed
+		time.Sleep(10 * time.Second) // waiting for page to load depending on the internet speed
 		response, err = http.Get(url)
 		if err != nil {
 			fmt.Println("Error when getting the new url for the mangas:", err)
@@ -93,8 +94,12 @@ func main() {
 			// select all image tags with src attribute
 			imgSrc, exists := element.Attr("src")
 
+			if strings.Contains(imgSrc, "ads") || strings.Contains(imgSrc, "content/frontend") {
+				document.Next()
+			}
 			// check if the link exists and has a "heaven" in it
-			if exists && (strings.Contains(imgSrc, "heaven") || strings.Contains(imgSrc, "fun") || strings.Contains(imgSrc, "manga") || strings.Contains(imgSrc, "image")) {
+			// if exists && (strings.Contains(imgSrc, "heaven") || strings.Contains(imgSrc, "fun") || strings.Contains(imgSrc, "manga") || strings.Contains(imgSrc, "image")) {
+			if exists && (strings.Contains(imgSrc, "heaven") || strings.Contains(imgSrc, "fun") || strings.Contains(imgSrc, "manga")) {
 				mangaImgSrc = append(mangaImgSrc, imgSrc)
 
 				fileName := "page_" + strconv.Itoa(j) + ".jpg"
@@ -200,6 +205,8 @@ func trimMangaName(mangaName string) string {
 	mangaName = strings.ReplaceAll(mangaName, ".", "-")
 	mangaName = strings.ReplaceAll(mangaName, ", ", "-")
 	mangaName = strings.ReplaceAll(mangaName, ",", "-")
+	mangaName = strings.ReplaceAll(mangaName, "?", "-")
+	mangaName = strings.ReplaceAll(mangaName, " ? ", "-")
 	mangaName = strings.ReplaceAll(mangaName, ". ", "-")
 	mangaName = strings.ReplaceAll(mangaName, ":", "-")
 	mangaName = strings.ReplaceAll(mangaName, ": ", "-")
