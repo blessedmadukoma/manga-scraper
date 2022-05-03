@@ -99,7 +99,7 @@ func main() {
 			}
 			// check if the link exists and has a "heaven" in it
 			// if exists && (strings.Contains(imgSrc, "heaven") || strings.Contains(imgSrc, "fun") || strings.Contains(imgSrc, "manga") || strings.Contains(imgSrc, "image")) {
-			if exists && (strings.Contains(imgSrc, "heaven") || strings.Contains(imgSrc, "fun") || strings.Contains(imgSrc, "manga")) {
+			if exists && (strings.Contains(imgSrc, "heaven") || strings.Contains(imgSrc, "fun") || strings.Contains(imgSrc, "manga") || (strings.Contains(imgSrc, "images")) || (strings.Contains(imgSrc, "mytoon.net"))) {
 				mangaImgSrc = append(mangaImgSrc, imgSrc)
 
 				fileName := "page_" + strconv.Itoa(j) + ".jpg"
