@@ -17,7 +17,7 @@ import (
 
 // Main function
 func main() {
-	link := "https://ww9.koomanga.com"
+	link := "https://ww4.beetoon.net"
 	response, err := http.Get(link)
 	if err != nil {
 		log.Fatal(err)
@@ -41,7 +41,7 @@ func main() {
 
 	fmt.Println("Enter the number of chapters you want to download e.g. 3..(if it's only one chapter you want, input 0):")
 	fmt.Scanln(&lastChapter)
-	fmt.Println("Enter the first chapter number for download e.g. 134 or 01 (if first episode starts with 01) or 1 (if first episode starts with 1, not 01)\n[To be sure, check koomanga.com, search for your manga and check the number of the first episode.]:")
+	fmt.Println("Enter the first chapter number for download e.g. 134 or 01 (if first episode starts with 01) or 1 (if first episode starts with 1, not 01)\n[To be sure, check https://ww4.beetoon.net, search for your manga and check the number of the first episode.]:")
 	variable, _ := reader.ReadString('\n')
 	variable = strings.ReplaceAll(variable, "\n", "")
 
@@ -55,13 +55,12 @@ func main() {
 			url = link + "/" + mangaName + "-chap-" + strconv.Itoa(i) + "/"
 		}
 
-		fmt.Println("URL:", url)
-		// Getting the URL
-		fmt.Println("\nLoading URL!!!")
-		time.Sleep(10 * time.Second) // waiting for page to load depending on the internet speed
+		fmt.Printf("\nLoading URL %s!\n", url)
+		time.Sleep(5 * time.Second) // waiting for page to load depending on the internet speed
+
 		response, err = http.Get(url)
 		if err != nil {
-			fmt.Println("Error when getting the new url for the mangas:", err)
+			fmt.Println("Error getting manga url:", err)
 			return
 		}
 
@@ -69,7 +68,6 @@ func main() {
 		os.Chdir(dir)
 
 		fmt.Println("Chapter", strconv.Itoa(i), "starting download!")
-		fmt.Println()
 
 		// Make a directory with a chapter subdirectory, 0755 is the permision
 		chapter := "chapter_" + strconv.Itoa(i)
@@ -97,25 +95,24 @@ func main() {
 			if strings.Contains(imgSrc, "ads") || strings.Contains(imgSrc, "content/frontend") {
 				document.Next()
 			}
-			// check if the link exists and has a "heaven" in it
-			// if exists && (strings.Contains(imgSrc, "heaven") || strings.Contains(imgSrc, "fun") || strings.Contains(imgSrc, "manga") || strings.Contains(imgSrc, "image")) {
-			if exists && (strings.Contains(imgSrc, "heaven") || strings.Contains(imgSrc, "fun") || strings.Contains(imgSrc, "manga") || (strings.Contains(imgSrc, "mytoon.net/images"))) {
+
+			// check if the link exists and has a contains the URLs
+			if exists && containString(imgSrc) {
 				mangaImgSrc = append(mangaImgSrc, imgSrc)
 
 				fileName := "page_" + strconv.Itoa(j) + ".jpg"
 				if fileExists(fileName) {
 					j++
-					fmt.Println("Skipping ", fileName, " since it exists...")
+					fmt.Printf("%s already exists, skipping...\n", fileName)
 					goto DOWNLOADCODE
 				}
 				fmt.Println("Waiting for 2 seconds!")
 				time.Sleep(2 * time.Second)
-				fmt.Println(fileName, "download started!")
-				fmt.Println("Download URL:", imgSrc)
+				fmt.Printf("%s with URL %s download started!\n", fileName, imgSrc)
 
 				err = downloadFile(imgSrc, fileName)
 				if err != nil {
-					log.Fatal(err)
+					log.Fatalf("Error downloading %s: %s\n", fileName, err)
 				}
 				fmt.Printf("=> %s download finished!\n", fileName)
 				j++
@@ -156,6 +153,11 @@ func (wc WriteCounter) PrintProgress() {
 	fmt.Printf("\rDownloading... %s complete", humanize.Bytes(wc.Total))
 }
 
+// containString checks if the image cotains certain URLs which makes it downloadable
+func containString(imgSrc string) bool {
+	return strings.Contains(imgSrc, "heaven") || strings.Contains(imgSrc, "fun") || strings.Contains(imgSrc, "manga") || (strings.Contains(imgSrc, "mytoon.net/images")) || (strings.Contains(imgSrc, "mytoon.net/img"))
+}
+
 // Download the file
 func downloadFile(URL, fileName string) error {
 	out, err := os.Create(fileName + ".tmp")
@@ -163,8 +165,12 @@ func downloadFile(URL, fileName string) error {
 		return err
 	}
 
+	// remove whitespaces e.g. \n
+	URL = strings.TrimSpace(URL)
+
 	response, err := http.Get(URL)
 	if err != nil {
+		log.Println("Error getting URL:", err)
 		out.Close()
 		return err
 	}
