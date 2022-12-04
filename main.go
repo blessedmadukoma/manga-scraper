@@ -15,54 +15,44 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
-// Main function
+var (
+	link           = "https://ww4.beetoon.net"
+	j, noOfChapter int
+	url            string
+	mangaImgSrc    []string
+)
+
 func main() {
-	link := "https://ww4.beetoon.net"
 	response, err := http.Get(link)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer response.Body.Close()
 
-	var j, totalPages, firstChapter, lastChapter int
-	var url string
-	var mangaImgSrc []string
-
 	reader := bufio.NewReader(os.Stdin)
 
-	fmt.Println("Enter manga name: e.g. solo leveling")
-	mangaName, _ := reader.ReadString('\n')
-	dirName := strings.ToUpper(mangaName)
-
-	dir := dirName
-	os.Mkdir(dir, 0755)
+	mangaName, dir := getMangaName(reader)
 
 	mangaName = trimMangaName(mangaName)
 
-	fmt.Println("Enter the number of chapters you want to download e.g. 3..(if it's only one chapter you want, input 0):")
-	fmt.Scanln(&lastChapter)
-	fmt.Println("Enter the first chapter number for download e.g. 134 or 01 (if first episode starts with 01) or 1 (if first episode starts with 1, not 01)\n[To be sure, check https://ww4.beetoon.net, search for your manga and check the number of the first episode.]:")
-	variable, _ := reader.ReadString('\n')
-	variable = strings.ReplaceAll(variable, "\n", "")
+	os.Mkdir(dir, 0755)
 
-	firstChapter, _ = strconv.Atoi(variable)
+	noOfChapters, firstChapterNo := userInput(reader)
 
-	for i := firstChapter; i <= (firstChapter + lastChapter); i++ {
+	firstChapter := convertToInt(firstChapterNo)
+
+	for i := firstChapter; i <= (firstChapter + noOfChapters); i++ {
 		j = 0
-		if strings.HasPrefix(variable, "0") {
-			url = link + "/" + mangaName + "-chap-" + variable + "/"
+		if strings.HasPrefix(firstChapterNo, "0") {
+			url = link + "/" + mangaName + "-chap-" + firstChapterNo + "/"
 		} else {
 			url = link + "/" + mangaName + "-chap-" + strconv.Itoa(i) + "/"
 		}
 
-		fmt.Printf("\nLoading URL %s!\n", url)
+		fmt.Printf("\nLoading URL `%s` ...\n", url)
 		time.Sleep(5 * time.Second) // waiting for page to load depending on the internet speed
 
-		response, err = http.Get(url)
-		if err != nil {
-			fmt.Println("Error getting manga url:", err)
-			return
-		}
+		response = getURL(url)
 
 		// Change to the manga directory
 		os.Chdir(dir)
@@ -84,7 +74,7 @@ func main() {
 
 		document, err := goquery.NewDocumentFromReader(response.Body)
 		if err != nil {
-			log.Fatal("Error loading HTTP response body. ", err)
+			log.Fatal("Error loading HTTP response body:", err)
 		}
 
 		// select all the image tags
@@ -97,15 +87,16 @@ func main() {
 			}
 
 			// check if the link exists and has a contains the URLs
-			if exists && containString(imgSrc) {
+			if exists && isContainString(imgSrc) {
 				mangaImgSrc = append(mangaImgSrc, imgSrc)
 
 				fileName := "page_" + strconv.Itoa(j) + ".jpg"
-				if fileExists(fileName) {
+				if isExist(fileName) {
 					j++
 					fmt.Printf("%s already exists, skipping...\n", fileName)
 					goto DOWNLOADCODE
 				}
+
 				fmt.Println("Waiting for 2 seconds!")
 				time.Sleep(2 * time.Second)
 				fmt.Printf("%s with URL %s download started!\n", fileName, imgSrc)
@@ -123,11 +114,10 @@ func main() {
 
 		err = os.Chdir("../../" + dir)
 		if err != nil {
-			log.Fatal("Error changing to original directory: ", err)
+			log.Fatal("Error changing to original directory:", err)
 		}
 
-		totalPages = j
-		fmt.Println("Chapter ", strconv.Itoa(i), " downloaded with ", strconv.Itoa(totalPages), "pages downloaded")
+		fmt.Println("Chapter ", strconv.Itoa(i), " downloaded with ", strconv.Itoa(j), "pages downloaded")
 	}
 	fmt.Println("All Downloads Completed!!")
 }
@@ -153,12 +143,12 @@ func (wc WriteCounter) PrintProgress() {
 	fmt.Printf("\rDownloading... %s complete", humanize.Bytes(wc.Total))
 }
 
-// containString checks if the image cotains certain URLs which makes it downloadable
-func containString(imgSrc string) bool {
-	return strings.Contains(imgSrc, "heaven") || strings.Contains(imgSrc, "fun") || strings.Contains(imgSrc, "manga") || (strings.Contains(imgSrc, "mytoon.net/images")) || (strings.Contains(imgSrc, "mytoon.net/img"))
+// isContainString checks if the image cotains certain URLs which makes it downloadable
+func isContainString(s string) bool {
+	return strings.Contains(s, "heaven") || strings.Contains(s, "fun") || strings.Contains(s, "manga") || (strings.Contains(s, "mytoon.net/images")) || (strings.Contains(s, "mytoon.net/img"))
 }
 
-// Download the file
+// downloadFile downloads the file
 func downloadFile(URL, fileName string) error {
 	out, err := os.Create(fileName + ".tmp")
 	if err != nil {
@@ -192,13 +182,24 @@ func downloadFile(URL, fileName string) error {
 	return nil
 }
 
-// Function to check if the file already exists
-func fileExists(filename string) bool {
-	info, err := os.Stat(filename)
+// isExist cheks if the file already exists in the directory
+func isExist(fileName string) bool {
+	info, err := os.Stat(fileName)
 	if os.IsNotExist(err) {
 		return false
 	}
 	return !info.IsDir()
+}
+
+// userInput gets the user input for manga
+func userInput(rd *bufio.Reader) (int, string) {
+	fmt.Println("Enter the number of chapters you want to download e.g. 3..(if it's only one chapter you want, input 0):")
+	fmt.Scanln(&noOfChapter)
+	fmt.Println("Enter the first chapter number for download e.g. 134 or 01 (if first episode starts with 01) or 1 (if first episode starts with 1, not 01)\n[To be sure, check https://ww4.beetoon.net, search for your manga and check the number of the first episode.]:")
+	firstChapterNo, _ := rd.ReadString('\n')
+	firstChapterNo = strings.ReplaceAll(firstChapterNo, "\n", "")
+
+	return noOfChapter, firstChapterNo
 }
 
 // Trim the manga name
@@ -221,4 +222,34 @@ func trimMangaName(mangaName string) string {
 	mangaName = strings.ReplaceAll(mangaName, "\n", "")
 
 	return mangaName
+}
+
+// getMangaName retrieves the manga name from user input
+func getMangaName(rd *bufio.Reader) (string, string) {
+	fmt.Println("Enter manga name: e.g. solo leveling")
+	mangaName, _ := rd.ReadString('\n')
+	dirName := strings.ToUpper(mangaName)
+
+	dirName = strings.ReplaceAll(dirName, "?", "")
+
+	return mangaName, dirName
+}
+
+// getURL gets the url from the web
+func getURL(link string) *http.Response {
+	response, err := http.Get(url)
+	if err != nil {
+		log.Fatalf("Error getting link -> %s: %s!\n", link, err)
+	}
+
+	return response
+}
+
+// convertToInt converts string variable to int
+func convertToInt(s string) int {
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		log.Fatalf("Error converting %s to int: %s \n", s, err)
+	}
+	return i
 }
