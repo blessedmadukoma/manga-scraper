@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"os"
@@ -12,7 +11,6 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/dustin/go-humanize"
 )
 
 var (
@@ -122,75 +120,6 @@ func main() {
 	fmt.Println("All Downloads Completed!!")
 }
 
-// WriteCounter counts the total kb downloaded
-type WriteCounter struct {
-	Total uint64
-}
-
-func (wc *WriteCounter) Write(p []byte) (int, error) {
-	n := len(p)
-	wc.Total += uint64(n)
-	wc.PrintProgress()
-	return n, nil
-}
-
-// PrintProgress prints the progress
-func (wc WriteCounter) PrintProgress() {
-	// Clear the line by using a character return to go back to the start and remove the remaining characters by filling it with spaces
-	fmt.Printf("\r%s", strings.Repeat(" ", 35))
-
-	// Return again and print current status of download. We use the humanize package to print the bytes in a meaningful way (e.g. 10 MB)
-	fmt.Printf("\rDownloading... %s complete", humanize.Bytes(wc.Total))
-}
-
-// isContainString checks if the image cotains certain URLs which makes it downloadable
-func isContainString(s string) bool {
-	return strings.Contains(s, "heaven") || strings.Contains(s, "fun") || strings.Contains(s, "manga") || (strings.Contains(s, "mytoon.net/images")) || (strings.Contains(s, "mytoon.net/img"))
-}
-
-// downloadFile downloads the file
-func downloadFile(URL, fileName string) error {
-	out, err := os.Create(fileName + ".tmp")
-	if err != nil {
-		return err
-	}
-
-	// remove whitespaces e.g. \n
-	URL = strings.TrimSpace(URL)
-
-	response, err := http.Get(URL)
-	if err != nil {
-		log.Println("Error getting URL:", err)
-		out.Close()
-		return err
-	}
-	defer response.Body.Close()
-
-	// Create our progress reported and pass it to be used alongside our writer
-	counter := &WriteCounter{}
-	if _, err = io.Copy(out, io.TeeReader(response.Body, counter)); err != nil {
-		out.Close()
-		return err
-	}
-
-	fmt.Print("\n")
-	out.Close()
-
-	if err = os.Rename(fileName+".tmp", fileName); err != nil {
-		return err
-	}
-	return nil
-}
-
-// isExist cheks if the file already exists in the directory
-func isExist(fileName string) bool {
-	info, err := os.Stat(fileName)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return !info.IsDir()
-}
-
 // userInput gets the user input for manga
 func userInput(rd *bufio.Reader) (int, string) {
 	fmt.Println("Enter the number of chapters you want to download e.g. 3..(if it's only one chapter you want, input 0):")
@@ -202,39 +131,6 @@ func userInput(rd *bufio.Reader) (int, string) {
 	return noOfChapter, firstChapterNo
 }
 
-// Trim the manga name
-func trimMangaName(mangaName string) string {
-	mangaName = strings.ToLower(mangaName)
-	mangaName = strings.ReplaceAll(mangaName, " ", "-")
-	mangaName = strings.ReplaceAll(mangaName, "'", "")
-	mangaName = strings.ReplaceAll(mangaName, "~", "-")
-	mangaName = strings.ReplaceAll(mangaName, " ", "-")
-	mangaName = strings.ReplaceAll(mangaName, ".", "-")
-	mangaName = strings.ReplaceAll(mangaName, ", ", "-")
-	mangaName = strings.ReplaceAll(mangaName, ",", "-")
-	mangaName = strings.ReplaceAll(mangaName, "?", "-")
-	mangaName = strings.ReplaceAll(mangaName, " ? ", "-")
-	mangaName = strings.ReplaceAll(mangaName, ". ", "-")
-	mangaName = strings.ReplaceAll(mangaName, ":", "-")
-	mangaName = strings.ReplaceAll(mangaName, ": ", "-")
-	mangaName = strings.ReplaceAll(mangaName, " - ", "-")
-	mangaName = strings.ReplaceAll(mangaName, "--", "-")
-	mangaName = strings.ReplaceAll(mangaName, "\n", "")
-
-	return mangaName
-}
-
-// getMangaName retrieves the manga name from user input
-func getMangaName(rd *bufio.Reader) (string, string) {
-	fmt.Println("Enter manga name: e.g. solo leveling")
-	mangaName, _ := rd.ReadString('\n')
-	dirName := strings.ToUpper(mangaName)
-
-	dirName = strings.ReplaceAll(dirName, "?", "")
-
-	return mangaName, dirName
-}
-
 // getURL gets the url from the web
 func getURL(link string) *http.Response {
 	response, err := http.Get(url)
@@ -243,13 +139,4 @@ func getURL(link string) *http.Response {
 	}
 
 	return response
-}
-
-// convertToInt converts string variable to int
-func convertToInt(s string) int {
-	i, err := strconv.Atoi(s)
-	if err != nil {
-		log.Fatalf("Error converting %s to int: %s \n", s, err)
-	}
-	return i
 }

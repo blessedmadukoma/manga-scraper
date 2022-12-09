@@ -1,0 +1,2 @@
+server:
+		go run *.go
