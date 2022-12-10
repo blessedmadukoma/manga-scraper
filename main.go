@@ -128,7 +128,7 @@ func main() {
 func userInput(rd *bufio.Reader) (int, string) {
 	fmt.Println("Enter the number of extra chapters you want to download e.g. 3(if it's only one chapter you want, input 0):")
 	fmt.Scanln(&noOfChapter)
-	fmt.Println("Enter the first chapter number for download e.g. 134 or 01 (if first episode starts with 01) or 1 (if first episode starts with 1, not 01)\n[To be sure, check https://ww4.beetoon.net, search for your manga and check the number of the first episode.]:")
+	fmt.Println("Enter the first chapter number for download e.g. 134 or 01 (if first episode starts with 01) or 1 (if first episode starts with 1, not 01)\n[To be sure, search for your manga and check the number of the first episode/chapter on https://ww4.beetoon.net]:")
 	firstChapterNo, _ := rd.ReadString('\n')
 	firstChapterNo = strings.ReplaceAll(firstChapterNo, "\n", "")
 
