@@ -33,6 +33,10 @@ func main() {
 
 	mangaName = trimMangaName(mangaName)
 
+	mangaDir := createDir()
+
+	os.Chdir(mangaDir)
+
 	os.Mkdir(dir, 0755)
 
 	noOfChapters, firstChapterNo := userInput(reader)
@@ -122,7 +126,7 @@ func main() {
 
 // userInput gets the user input for manga
 func userInput(rd *bufio.Reader) (int, string) {
-	fmt.Println("Enter the number of chapters you want to download e.g. 3..(if it's only one chapter you want, input 0):")
+	fmt.Println("Enter the number of extra chapters you want to download e.g. 3(if it's only one chapter you want, input 0):")
 	fmt.Scanln(&noOfChapter)
 	fmt.Println("Enter the first chapter number for download e.g. 134 or 01 (if first episode starts with 01) or 1 (if first episode starts with 1, not 01)\n[To be sure, check https://ww4.beetoon.net, search for your manga and check the number of the first episode.]:")
 	firstChapterNo, _ := rd.ReadString('\n')

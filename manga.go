@@ -10,7 +10,7 @@ import (
 func getMangaName(rd *bufio.Reader) (string, string) {
 	fmt.Println("Enter manga name: e.g. solo leveling")
 	mangaName, _ := rd.ReadString('\n')
-	dirName := strings.ToUpper(mangaName)
+	dirName := strings.Title(mangaName)
 
 	dirName = strings.ReplaceAll(dirName, "?", "")
 

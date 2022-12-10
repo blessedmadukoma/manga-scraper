@@ -7,6 +7,18 @@ import (
 	"strings"
 )
 
+// createDir creates a directory named manga to house all downloadable manga
+func createDir() string {
+	dir := "Manga"
+	err := os.Mkdir(dir, 0755)
+	if err != nil {
+		if err.Error() != "mkdir Manga: file exists" {
+			log.Fatal("Error creating manga directory:", err)
+		}
+	}
+	return dir
+}
+
 // convertToInt converts string variable to int
 func convertToInt(s string) int {
 	i, err := strconv.Atoi(s)
