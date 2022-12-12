@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	link           = "https://ww4.beetoon.net"
+	link           = "https://ww5.beetoon.net"
 	j, noOfChapter int
 	url            string
 	mangaImgSrc    []string
@@ -46,10 +46,14 @@ func main() {
 	for i := firstChapter; i <= (firstChapter + noOfChapters); i++ {
 		j = 0
 		if strings.HasPrefix(firstChapterNo, "0") {
-			url = link + "/" + mangaName + "-chap-" + firstChapterNo + "/"
+
+			url = link + "/" + mangaName + "-chapter-" + firstChapterNo + "/"
 		} else {
-			url = link + "/" + mangaName + "-chap-" + strconv.Itoa(i) + "/"
+
+			url = link + "/" + mangaName + "-chapter-" + strconv.Itoa(i) + "/"
 		}
+
+		url = isContainsCharacter(url, mangaName, i)
 
 		fmt.Printf("\nLoading URL `%s` ...\n", url)
 		time.Sleep(5 * time.Second) // waiting for page to load depending on the internet speed
@@ -74,18 +78,18 @@ func main() {
 			fmt.Println("\nError changing chapter directory:", err)
 		}
 
-		document, err := goquery.NewDocumentFromReader(response.Body)
+		doc, err := goquery.NewDocumentFromReader(response.Body)
 		if err != nil {
 			log.Fatal("Error loading HTTP response body:", err)
 		}
 
 		// select all the image tags
-		document.Find("img").Each(func(index int, element *goquery.Selection) {
+		doc.Find("img").Each(func(i int, s *goquery.Selection) {
 			// select all image tags with src attribute
-			imgSrc, exists := element.Attr("src")
+			imgSrc, exists := s.Attr("src")
 
 			if strings.Contains(imgSrc, "ads") || strings.Contains(imgSrc, "content/frontend") {
-				document.Next()
+				doc.Next()
 			}
 
 			// check if the link exists and has a contains the URLs

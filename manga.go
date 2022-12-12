@@ -14,6 +14,9 @@ func getMangaName(rd *bufio.Reader) (string, string) {
 
 	dirName = strings.ReplaceAll(dirName, "?", "")
 
+	mangaName = strings.ReplaceAll(mangaName, " ", "+")
+	mangaName = strings.ReplaceAll(mangaName, "\n", "")
+
 	return mangaName, dirName
 }
 
@@ -21,6 +24,7 @@ func getMangaName(rd *bufio.Reader) (string, string) {
 func trimMangaName(mangaName string) string {
 	mangaName = strings.ToLower(mangaName)
 	mangaName = strings.ReplaceAll(mangaName, " ", "-")
+	mangaName = strings.ReplaceAll(mangaName, "+", "-")
 	mangaName = strings.ReplaceAll(mangaName, "'", "")
 	mangaName = strings.ReplaceAll(mangaName, "~", "-")
 	mangaName = strings.ReplaceAll(mangaName, " ", "-")
