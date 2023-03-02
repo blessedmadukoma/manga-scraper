@@ -31,7 +31,7 @@ func convertToInt(s string) int {
 
 // isContainString checks if the image cotains certain URLs which makes it downloadable
 func isContainString(s string) bool {
-	return strings.Contains(s, "heaven") || (strings.Contains(s, "mytoon.net/images")) || (strings.Contains(s, "mytoon.net/img")) || (strings.Contains(s, "mytoon.net/cloud"))
+	return strings.Contains(s, "heaven") || (strings.Contains(s, "mytoon.net/images")) || (strings.Contains(s, "mytoon.net/img")) || (strings.Contains(s, "mytoon.net/cloud")) || (strings.Contains(s, "funmanga.com/uploads/chapter_files")) || (strings.Contains(s, "mytoon.net/uploads"))	
 }
 
 // isExist cheks if the file already exists in the directory
@@ -48,6 +48,7 @@ func isContainsCharacter(url, mangaName string, i int) string {
 	fmt.Println("Herrrrrrrerererere:", url)
 
 	switch {
+	// case strings.Contains(url, "eleceed"), strings.Contains(url, "chainsaw man"):
 	case strings.Contains(url, "eleceed"):
 		if strings.Contains(url, "200") {
 			url = fmt.Sprintf("%s/mbx11-%s-chapter-%s/", link, mangaName, strconv.Itoa(i))
