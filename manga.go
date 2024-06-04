@@ -39,6 +39,7 @@ func trimMangaName(mangaName string) string {
 	mangaName = strings.ReplaceAll(mangaName, " - ", "-")
 	mangaName = strings.ReplaceAll(mangaName, "--", "-")
 	mangaName = strings.ReplaceAll(mangaName, "\n", "")
+	mangaName = strings.ReplaceAll(mangaName, "’", "")
 
 	return mangaName
 }
